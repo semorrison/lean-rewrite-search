@@ -1,0 +1,56 @@
+language: c
+sudo: false
+os:
+    - linux
+
+cache:
+  directories:
+    - $TRAVIS_BUILD_DIR/*/
+    - $HOME/.elan
+    
+before_install:
+  - wget -nc https://launchpad.net/ubuntu/+source/dpkg/1.17.5ubuntu5.8/+build/14426995/+files/dpkg_1.17.5ubuntu5.8_amd64.deb
+  - wget -nc http://launchpadlibrarian.net/353523729/libc6_2.23-0ubuntu10_amd64.deb
+  - wget -nc http://launchpadlibrarian.net/388656986/gcc-7-base_7.3.0-27ubuntu1~18.04_amd64.deb
+  - wget -nc http://launchpadlibrarian.net/388657037/libgcc-7-dev_7.3.0-27ubuntu1~18.04_amd64.deb
+  - wget -nc http://launchpadlibrarian.net/388610965/libstdc++6_8.2.0-1ubuntu2~18.04_amd64.deb
+  - wget -nc http://launchpadlibrarian.net/388657059/libstdc++-7-dev_7.3.0-27ubuntu1~18.04_amd64.deb
+  - sudo dpkg --force-all -i dpkg_1.17.5ubuntu5.8_amd64.deb
+  - sudo dpkg --force-breaks -i libc6_2.23-0ubuntu10_amd64.deb
+  - sudo dpkg -i gcc-7-base_7.3.0-27ubuntu1~18.04_amd64.deb
+  - sudo dpkg --force-all -i libgcc-7-dev_7.3.0-27ubuntu1~18.04_amd64.deb
+  - sudo dpkg --force-all -i libstdc++6_8.2.0-1ubuntu2~18.04_amd64.deb libstdc++-7-dev_7.3.0-27ubuntu1~18.04_amd64.deb
+
+install:
+  - |
+    if [ ! -d "$HOME/.elan/toolchains/" ]; then
+      curl https://raw.githubusercontent.com/Kha/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain none -y
+    fi
+  - source ~/.elan/env
+  - mkdir $HOME/scripts || echo ""
+  - export PATH="$HOME/scripts:$PATH"
+  - cp travis_long.sh $HOME/scripts/travis_long
+  - chmod +x $HOME/scripts/travis_long
+  - (git status | grep  -e "Changes not staged for commit:"); RESULT=$?
+  - if [ $RESULT -eq 0 ]; then git checkout -f HEAD ; fi
+  - rm `git status | grep "\.lean" | sed "s/\.lean/.olean/"` ||  true
+  - rm `git status | grep "\.lean"` || true
+  - rm mathlib.txt || true
+
+jobs:
+  include:
+    - stage: Pre-build-1
+      script:
+        - travis_long "timeout 2400 leanpkg test" | awk 'BEGIN{e=0;c=-1}c&&--c;/error/{if (!e) {c=30;e=1}};{if (!c) {exit 1}}'
+
+    - stage: Pre-build-2
+      script:
+        - travis_long "timeout 2400 leanpkg test" | awk 'BEGIN{e=0;c=-1}c&&--c;/error/{if (!e) {c=30;e=1}};{if (!c) {exit 1}}'
+
+    - stage: Test
+      script:
+        - leanpkg test
+
+notifications:
+  webhooks:
+    - https://leanprover.zulipchat.com/api/v1/external/travis?stream=travis&topic=build-status&api_key=SwF1QzwUWol76dCxsYgwHbI6giN3cxGn
