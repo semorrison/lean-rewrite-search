@@ -1,0 +1,220 @@
+%auto-ignore
+%this ensures the arxiv doesn't try to start TeXing here.
+%!TEX root=article.tex
+
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+
+\usepackage{xparse}
+\usepackage{scrextend}
+
+\usepackage{stmaryrd}
+\usepackage[final]{microtype}
+\usepackage{commath}
+\usepackage{enumerate}
+\usepackage{xparse}
+
+\usepackage{amsmath,amsfonts,amsthm,amsopn,amssymb}
+\usepackage{theoremref}
+
+\usepackage{xcolor}
+
+
+\usepackage{silence}
+% Filter warnings issued by package biblatex starting with "Patching footnotes failed"
+\WarningFilter{biblatex}{Patching footnotes failed}
+\WarningFilter{hyperref}{Token not allowed}
+
+
+\usepackage{float}
+\usepackage{tikz-cd}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{mathtools}
+\usepackage{comment}
+\usepackage{bm}
+
+\usepackage{booktabs}
+\usepackage{todonotes}
+
+\definecolor{bg}{RGB}{30,30,30}
+\definecolor{bg2}{RGB}{20,20,20}
+
+\usepackage[maxbibnames=99]{biblatex}
+\bibliography{the}
+\nocite{*}
+\renewbibmacro{in:}{}
+\newbibmacro{string+doi}[1]{%
+  \iffieldundef{doi}{#1}{\href{http://dx.doi.org/\thefield{doi}}{#1}}}
+%\DeclareFieldFormat{title}{\usebibmacro{string+doi}{\mkbibemph{#1}}}
+%\DeclareFieldFormat[article]{title}{\usebibmacro{string+doi}{\mkbibquote{#1}}}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  backgroundcolor = \color{lightgray},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\newcommand{\todoi}[1]{\todo[inline]{#1}}
+\newcommand{\todothis}{\todoi{Do this.}}
+\newcommand{\docite}[1]{\todo{Cite: #1}{}}
+
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+
+\newcommand{\labelquestion}[1]{Question #1}
+
+\newcommand{\namepart}[1]{\uppercase{#1}}
+\newcommand{\namesubpart}[1]{(\rom{#1})}
+
+\DeclareMathOperator{\rws}{rws}
+\DeclareMathOperator{\dist}{dist}
+\DeclareMathOperator{\abss}{abs}
+\DeclareMathOperator{\Cat}{Cat}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\chr}{char}
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator{\id}{id}
+\DeclareMathOperator{\Hom}{Hom}
+\DeclareMathOperator{\Spec}{Spec}
+\DeclareMathOperator{\Ob}{Ob}
+\DeclareMathOperator{\Mat}{Mat}
+\DeclareMathOperator{\Mul}{Mul}
+\DeclareMathOperator{\Set}{\mathbf{Set}}
+\DeclareMathOperator{\Mon}{\mathbf{Mon}}
+\DeclareMathOperator{\Alg}{\mathbf{Alg}}
+\DeclareMathOperator{\CAlg}{\mathbf{CAlg}}
+
+\DeclareMathOperator{\Map}{Map}
+
+\DeclareMathOperator{\Comm}{Comm}
+\DeclareMathOperator{\Assoc}{Assoc}
+
+\DeclareMathOperator{\OPraw}{op}
+\newcommand{\OP}{{\OPraw}}
+
+\DeclareMathOperator{\Arg}{Arg}
+\DeclareMathOperator{\RE}{Re}
+\DeclareMathOperator{\IM}{Im}
+
+\newcommand{\mA}{\mathcal{A}}
+\newcommand{\mB}{\mathcal{B}}
+\newcommand{\mC}{\mathcal{C}}
+\newcommand{\mD}{\mathcal{D}}
+\newcommand{\mE}{\mathcal{E}}
+\newcommand{\mF}{\mathcal{F}}
+\newcommand{\mG}{\mathcal{G}}
+\newcommand{\mH}{\mathcal{H}}
+\newcommand{\mI}{\mathcal{I}}
+\newcommand{\mJ}{\mathcal{J}}
+\newcommand{\mK}{\mathcal{K}}
+\newcommand{\mL}{\mathcal{L}}
+\newcommand{\mM}{\mathcal{M}}
+\newcommand{\mN}{\mathcal{N}}
+\newcommand{\mO}{\mathcal{O}}
+\newcommand{\mP}{\mathcal{P}}
+\newcommand{\mQ}{\mathcal{Q}}
+\newcommand{\mR}{\mathcal{R}}
+\newcommand{\mS}{\mathcal{S}}
+\newcommand{\mT}{\mathcal{T}}
+\newcommand{\mU}{\mathcal{U}}
+\newcommand{\mV}{\mathcal{V}}
+\newcommand{\mW}{\mathcal{W}}
+\newcommand{\mX}{\mathcal{X}}
+\newcommand{\mY}{\mathcal{Y}}
+\newcommand{\mZ}{\mathcal{Z}}
+
+\newcommand{\bA}{\mathbb{A}}
+\newcommand{\bB}{\mathbb{B}}
+\newcommand{\bC}{\mathbb{C}}
+\newcommand{\bD}{\mathbb{D}}
+\newcommand{\bE}{\mathbb{E}}
+\newcommand{\bF}{\mathbb{F}}
+\newcommand{\bG}{\mathbb{G}}
+\newcommand{\bH}{\mathbb{H}}
+\newcommand{\bI}{\mathbb{I}}
+\newcommand{\bJ}{\mathbb{J}}
+\newcommand{\bK}{\mathbb{K}}
+\newcommand{\bL}{\mathbb{L}}
+\newcommand{\bM}{\mathbb{M}}
+\newcommand{\bN}{\mathbb{N}}
+\newcommand{\bO}{\mathbb{O}}
+\newcommand{\bP}{\mathbb{P}}
+\newcommand{\bQ}{\mathbb{Q}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bS}{\mathbb{S}}
+\newcommand{\bT}{\mathbb{T}}
+\newcommand{\bU}{\mathbb{U}}
+\newcommand{\bV}{\mathbb{V}}
+\newcommand{\bW}{\mathbb{W}}
+\newcommand{\bX}{\mathbb{X}}
+\newcommand{\bY}{\mathbb{Y}}
+\newcommand{\bZ}{\mathbb{Z}}
+
+\DeclareMathOperator{\End}{End}
+\newcommand{\Sets}{\textsf{Sets}}
+\newcommand{\Groups}{\textsf{Groups}}
+
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\newcommand{\divides}{\mid}
+
+\NewDocumentCommand{\ZZ}{g}{{\IfValueTF{#1}{\mathbf{Z}/#1\mathbf{Z}}{\mathbf{Z}}}}
+\newcommand{\NN}{\mathbf{N}}
+\newcommand{\QQ}{\mathbf{Q}}
+\newcommand{\RP}{\mathbf{R}P}
+\newcommand{\RR}{\mathbf{R}}
+\newcommand{\CC}{\mathbf{C}}
+
+\renewcommand{\norm}[1]{{\left\lvert {#1} \right\rvert}}
+\newcommand{\Norm}[1]{{\left\lVert {#1} \right\rVert}}
+\newcommand{\ri}[1]{{\langle {#1} \rangle}}
+\newcommand{\gp}[1]{{\langle {#1} \rangle}}
+\newcommand{\s}[1]{{\left \{ {#1} \right \}}}
+\newcommand{\p}[1]{{\left ( {#1} \right )}}
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+
+\newtheorem{prop}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{cor}{Corollary}[theorem]
+
+\theoremstyle{definition}
+
+\newtheorem*{remark}{Remark}
+\newtheorem{defn}[theorem]{diagrams/definition}
+
+\newtheorem{prob}[theorem]{Problem}
+\newtheorem{alg}[theorem]{Algorithm}
+
+\newcommand{\ttt}{\texttt}
+\newcommand{\xx}[1]{{\colorbox{gray!15}{\raisebox{0em}[0.5em][0pt]{\makebox[\width-0.4em]{\texttt{#1}}}}}}
+% \newcommand{\xx}[1]{{\parbox[c][1em][c]{\width}{\colorbox{gray!15}{\texttt{#1}}}}}
+
+\newcommand{\expr}{\xx{expr}}
+
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\usepackage[htt]{hyphenat}
