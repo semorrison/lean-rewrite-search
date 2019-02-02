@@ -15,7 +15,7 @@ open io.process.stdio
 def SUCCESS_CHAR : string := "S"
 def ERROR_CHAR   : string := "E"
 def SEARCH_PATHS : list string := [
-  "_target/deps/lean-tidy/res/graph_tracer",
+  "_target/deps/lean-rewrite-search/res/graph_tracer",
   "res/graph_tracer"
 ]
 
@@ -99,10 +99,10 @@ meta def graph_tracer_init : tactic (init_result visualiser) := do
   c ← tactic.unsafe_run_io (try_launch_with_paths SEARCH_PATHS),
   match c with
   | spawn_result.success c    := let vs : visualiser := ⟨ c ⟩ in do vs.publish "S", init_result.pure vs
-  | spawn_result.abort reason := init_result.fail ("Error! " ++ reason)
+  | spawn_result.abort reason := init_result.fail ("Abort! " ++ reason)
   | spawn_result.failure      := do
     reason ← tactic.unsafe_run_io diagnose_launch_failure,
-    init_result.fail ("Error! " ++ reason)
+    init_result.fail ("Failure! " ++ reason)
   | spawn_result.missing      := init_result.fail "Error! bug: could not determine client location"
   end
 
