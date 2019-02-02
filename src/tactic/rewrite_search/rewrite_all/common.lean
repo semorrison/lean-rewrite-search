@@ -1,4 +1,4 @@
-import data.option
+import data.option.defs
 import tactic.rewrite_search.core.data
 
 universe u

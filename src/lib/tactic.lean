@@ -1,3 +1,4 @@
+import tactic.basic
 import .pretty_print
 
 universe u

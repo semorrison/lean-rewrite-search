@@ -1,12 +1,11 @@
-import lib.parser
+import lib.interactive
 
 import .screening
 
 namespace tactic.rewrite_search.discovery
 
 open tactic
-open lean.parser
-open interactive.types
+open lean.parser interactive interactive.types
 
 meta def atrr_fail {α : Type} (attr : string) (reason : format) : tactic α :=
   fail $ "[" ++ attr ++ "] error: " ++ to_string reason
