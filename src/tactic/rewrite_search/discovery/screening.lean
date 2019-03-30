@@ -57,6 +57,6 @@ meta def is_rewrite_lemma (d : declaration) : option (name × expr) :=
 
 meta def find_all_rewrites : tactic (list (name × expr)) := do
   e ← get_env,
-  return $ e.decl_omap is_rewrite_lemma
+  return $ e.decl_filter_map is_rewrite_lemma
 
 end tactic.rewrite_search.discovery

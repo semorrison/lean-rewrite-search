@@ -1,4 +1,4 @@
-import data.option
+import data.option.basic
 import data.buffer
 
 import .interaction_monad
