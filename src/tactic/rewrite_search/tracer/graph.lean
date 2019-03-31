@@ -98,7 +98,7 @@ meta def diagnose_launch_failure : io string := do
   | ret := return (format!"bug: unexpected return code {ret} during launch failure diagnosis").to_string
   end
 
-meta def graph_tracer_init : tactic (init_result visualiser) :=
+meta def init : tactic (init_result visualiser) :=
 do c ← tactic.unsafe_run_io (try_launch_with_paths SEARCH_PATHS),
    match c with
    | spawn_result.success c    :=
@@ -113,23 +113,23 @@ do c ← tactic.unsafe_run_io (try_launch_with_paths SEARCH_PATHS),
      init_result.fail "Error! bug: could not determine client location"
    end
 
-meta def graph_tracer_publish_vertex (vs : visualiser) (v : vertex) : tactic unit :=
+meta def publish_vertex (vs : visualiser) (v : vertex) : tactic unit :=
 vs.publish format!"V|{v.id.to_string}|{v.s.to_string}|{v.id}"
 
-meta def graph_tracer_publish_edge (vs : visualiser) (e : edge) : tactic unit :=
+meta def publish_edge (vs : visualiser) (e : edge) : tactic unit :=
 vs.publish format!"E|{e.f.to_string}|{e.t.to_string}"
 
-meta def graph_tracer_publish_visited (vs : visualiser) (v : vertex) : tactic unit :=
+meta def publish_visited (vs : visualiser) (v : vertex) : tactic unit :=
 vs.publish format!"B|{v.id.to_string}"
 
-meta def graph_tracer_publish_finished (vs : visualiser) (es : list edge) : tactic unit :=
+meta def publish_finished (vs : visualiser) (es : list edge) : tactic unit :=
 do es.mmap' (λ e : edge, vs.publish format!"F|{e.f.to_string}|{e.t.to_string}"),
    vs.publish format!"D"
 
-meta def graph_tracer_dump (vs : visualiser) (str : string) : tactic unit :=
+meta def dump (vs : visualiser) (str : string) : tactic unit :=
 vs.publish (str ++ "\n")
 
-meta def graph_tracer_pause (vs : visualiser) : tactic unit :=
+meta def pause (vs : visualiser) : tactic unit :=
 vs.pause
 
 end tactic.rewrite_search.tracer.graph
@@ -139,8 +139,7 @@ namespace tactic.rewrite_search.tracer
 open tactic.rewrite_search.tracer.graph
 
 meta def graph_cnst := λ α β γ,
-  tracer.mk α β γ graph_tracer_init graph_tracer_publish_vertex graph_tracer_publish_edge
-    graph_tracer_publish_visited graph_tracer_publish_finished graph_tracer_dump graph_tracer_pause
+tracer.mk α β γ graph.init graph.publish_vertex graph.publish_edge graph.publish_visited graph.publish_finished graph.dump graph.pause
 
 meta def graph : tactic expr := generic `tactic.rewrite_search.tracer.graph_cnst
 
