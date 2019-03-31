@@ -39,11 +39,11 @@ def erase_first_such_that {α : Type u} (f : α → Prop) [decidable_pred f] : l
 | [] := []
 | (h :: t) := if f h then t else (h :: t.erase_first_such_that)
 
-meta def factor {m : Type u → Type u} [monad m] {α : Type u} : list (m α) → m (list α)
+def factor {m : Type u → Type v} [monad m] {α : Type u} : list (m α) → m (list α)
 | []          := return []
 | (a :: rest) := do a ← a, rest ← factor rest, return $ (a :: rest)
 
-meta def ffactor {m : Type u → Type v} [monad m] [alternative m] {α : Type u} : list (m α) → m (list α)
+def ffactor {m : Type u → Type v} [monad m] [alternative m] {α : Type u} : list (m α) → m (list α)
 | []          := return []
 | (a :: rest) := do
   a ← (some <$> a) <|> pure none,
