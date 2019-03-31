@@ -8,8 +8,7 @@ meta def mmap_copy_aux {k : Type v → Type z} [monad k] {α : Type u} {β : Typ
 | r x y := do if h : r < n ∧ r < m then do
                 let fn : fin n := ⟨r, and.elim_left h⟩,
                 let fm : fin m := ⟨r, and.elim_right h⟩,
-                v ← f $ x.read fn,
-                let y := y.write fm v,
+                y ← y.write fm <$> f (x.read fn),
                 mmap_copy_aux (r + 1) x y
               else return y
 
