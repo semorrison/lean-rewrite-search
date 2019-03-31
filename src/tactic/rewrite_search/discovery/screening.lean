@@ -1,7 +1,6 @@
 import lib.list
 import lib.env
 import lib.tactic
-import lib.pretty_print
 
 import tactic.rewrite_search.core.common
 
@@ -14,7 +13,7 @@ meta def assert_acceptable_lemma (r : expr) : tactic unit := do
   ret ← pure tt, -- is_acceptable_lemma r,
   if ret then return ()
   else do
-    pp ← pretty_print r,
+    pp ← pp r,
     fail format!"\"{pp}\" is not a valid rewrite lemma!"
 
 meta def load_attr_list : list name → tactic (list name)

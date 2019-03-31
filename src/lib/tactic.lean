@@ -1,4 +1,5 @@
-import .pretty_print
+import tactic.basic
+import .options
 
 universe u
 

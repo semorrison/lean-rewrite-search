@@ -1,7 +1,6 @@
 import data.list
 
 import .string
-import .pretty_print
 
 meta def binder_info.brackets : binder_info → string × string
 | binder_info.default  := ("(", ")")
@@ -27,7 +26,7 @@ meta def set_binder_info : binder → _root_.binder_info → binder
 
 meta def pretty_print : binder → tactic string
 | ⟨n, e, bi⟩ := let brackets := bi.brackets in do
-  ppe ← _root_.pretty_print e,
+  ppe ← to_string <$> tactic.pp e,
   return $ brackets.1 ++ n.to_string ++ " : " ++ ppe ++ brackets.2
 
 private meta def instantiate_list_aux : list binder → list binder → list binder

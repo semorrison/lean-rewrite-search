@@ -1,5 +1,4 @@
 import lib.mllist
-import lib.pretty_print
 import lib.tactic
 
 universes u

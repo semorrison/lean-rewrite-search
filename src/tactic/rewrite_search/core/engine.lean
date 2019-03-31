@@ -1,4 +1,3 @@
-import lib.pretty_print
 import tactic.rewrite_search.discovery.collect
 
 import .types
@@ -17,7 +16,7 @@ private meta def chop : list char → list string → list string
 | (c :: rest) l := chop rest $ list.join $ l.map $ string.split_on c
 
 meta def tokenise_expr (e : expr) : tactic (string × list string) := do
-  pp ← pretty_print e,
+  pp ← to_string <$> tactic.pp e,
   pure (pp, chop [' '/-, '(', ')'-/] [pp])
 
 namespace search_state
@@ -51,7 +50,7 @@ private meta def find_vertex_aux (pp : string) : list vertex → option vertex
 -- Find the vertex with the given (e : expr), or return the null verterx if not
 -- found.
 meta def find_vertex (e : expr) : tactic (option vertex) := do
-  pp ← pretty_print e,
+  pp ← to_string <$> tactic.pp e,
   return (g.vertices.find_key pp)
 
 -- Forcibly add a new vertex to the vertex table. You probably actually want to call

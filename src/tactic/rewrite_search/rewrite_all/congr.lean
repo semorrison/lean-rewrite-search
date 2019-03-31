@@ -4,8 +4,8 @@
 
 import data.list
 
+import lib.list
 import lib.mllist
-import lib.pretty_print
 
 import .common
 
@@ -40,10 +40,10 @@ meta def expr_lens.replace : expr_lens → expr → expr
 | (app_arg l x) f := expr_lens.replace l (expr.app f x)
 
 private meta def trace_congr_error (f : expr) (x_eq : expr) : tactic unit := do
-  pp_f ← pretty_print f tt,
-  pp_f_t ← (infer_type f >>= λ t, pretty_print t tt),
-  pp_x_eq ← pretty_print x_eq tt,
-  pp_x_eq_t ← (infer_type x_eq >>= λ t, pretty_print t tt),
+  pp_f ← pp f,
+  pp_f_t ← (infer_type f >>= λ t, pp t),
+  pp_x_eq ← pp x_eq,
+  pp_x_eq_t ← (infer_type x_eq >>= λ t, pp t),
   trace format!"expr_lens.congr failed on \n{pp_f} : {pp_f_t}\n{pp_x_eq} : {pp_x_eq_t}"
 
 meta def expr_lens.congr : expr_lens → expr → tactic expr
@@ -61,11 +61,11 @@ meta def expr_lens.congr : expr_lens → expr → tactic expr
 meta def expr_lens.to_tactic_string : expr_lens → tactic string
 | entire := return "(entire)"
 | (app_fun l f) := do
-  pp ← pretty_print f,
+  pp ← pp f,
   rest ← l.to_tactic_string,
   return $ to_string format!"(fun \"{pp}\" {rest})"
 | (app_arg l x) := do
-  pp ← pretty_print x,
+  pp ← pp x,
   rest ← l.to_tactic_string,
   return $ to_string format!"(arg \"{pp}\" {rest})"
 
