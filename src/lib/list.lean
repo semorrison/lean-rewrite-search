@@ -68,7 +68,7 @@ def stripl {α : Type u} [decidable_eq α] (l : list α) (vs : list α) : list �
 
 meta def factor {m : Type u → Type u} [monad m] {α : Type u} : list (m α) → m (list α)
 | []          := return []
-| (a :: rest) := do a ← a, rest ← factor rest, return $ (a :: rest)
+| (a :: rest) := do a ← a, list.cons a <$> factor rest
 
 meta def ffactor {m : Type u → Type v} [monad m] [alternative m] {α : Type u} : list (m α) → m (list α)
 | []          := return []
@@ -77,7 +77,6 @@ meta def ffactor {m : Type u → Type v} [monad m] [alternative m] {α : Type u}
   rest ← ffactor rest,
   return $ a.to_list ++ rest
 
-end list
+def iget {α : Type u} [inhabited α] (l : list α) (n : ℕ) : α := (l.nth n).iget
 
-def list.at {α : Type u} [inhabited α] (l : list α) (n : ℕ) : α :=
-list.head $ option.to_list $ list.nth l n
+end list
