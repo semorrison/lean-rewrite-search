@@ -15,7 +15,7 @@ private meta def hand : sided_pair string := ⟨"lhs", "rhs"⟩
 meta def nth_rule (rs : list (expr × bool)) (i : ℕ) : expr × bool := (rs.nth i).iget
 
 meta def pp_rule (r : expr × bool) : tactic string :=
-  do pp ← pretty_print r.1, return $ (if r.2 then "←" else "") ++ pp
+  do pp ← pp r.1, return $ (if r.2 then "←" else "") ++ (to_string pp)
 
 meta def how.to_rewrite (rs : list (expr × bool)) : how → option (expr × bool)
 | (how.rewrite index _ _) := nth_rule rs index
@@ -85,7 +85,7 @@ meta def build_rw_tactic (rs : list (expr × bool)) (hs : list ℕ) : tactic str
   return $ "erw [" ++ (string.intercalate ", " rws) ++ "]"
 
 meta def explain_tree_aux (rs : list (expr × bool)) : app_addr → tactic (option (list string))
-| (app_addr.rw rws) := some <$> list.singleton <$> build_rw_tactic rs rws
+| (app_addr.rw rws) := (λ a, some [a]) <$> build_rw_tactic rs rws
 | (app_addr.node ⟨func, arg⟩) := do
   sf ← match func with | none := pure none | some func := explain_tree_aux func end,
   sa ← match arg  with | none := pure none | some arg  := explain_tree_aux arg  end,
@@ -191,8 +191,8 @@ meta def explain_proof_full (rs : list (expr × bool)) (explain_using_conv : boo
   -- This is an optimisation: don't use transitivity for the last unit, since
   -- it neccesarily must be redundant.
   head ← if rest.length = 0 ∨ u.side = side.L then pure [] else (do
-    n ← infer_type u.proof >>= rw_equation.rhs >>= pretty_print,
-    pure $ ["transitivity " ++ n]
+    n ← infer_type u.proof >>= rw_equation.rhs >>= pp,
+    pure $ ["transitivity " ++ to_string n]
   ),
 
   unit_expl ← u.explain rs explain_using_conv,
@@ -211,7 +211,7 @@ meta def explain_proof_concisely (rs : list (expr × bool)) (proof : expr) (l : 
 
 meta def explain_search_result (cfg : config) (rs : list (expr × bool)) (proof : expr) (units : list proof_unit) : tactic string := do
   if cfg.trace then do
-    pp ← pretty_print proof,
+    pp ← pp proof,
     trace format!"rewrite_search found proof:\n{pp}"
   else skip,
 

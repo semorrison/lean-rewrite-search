@@ -35,7 +35,7 @@ meta def try_bundles (conf : config) (rs : list (expr × bool)) (p : progress) (
   if p.persistence < persistence.try_bundles then
     return (p, [])
   else do
-    bs ← list.filter (λ b, ¬p.seen_bundles.contains b) <$> get_bundles,
+    bs ← list.filter (λ b, b ∉ p.seen_bundles) <$> get_bundles,
     bs ← bs.mmap $ λ b, (do s ← score_bundle b sample, return (b, s)),
     (awful_bs, interesting_bs) ← pure $ bs.partition $ λ b, b.2 = 0,
     let p := {p with seen_bundles := p.seen_bundles.append (awful_bs.map prod.fst)},

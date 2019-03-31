@@ -50,7 +50,7 @@ meta def suggest_attr : user_attribute unit (list name) := {
 meta def get_suggested_bundle_idents : tactic (list name) := do
   ls ← attribute.get_instances `suggest,
   ls ← ls.mmap suggest_attr.get_param,
-  return ls.join.erase_duplicates
+  return ls.join.erase_dup
 
 @[suggest]
 meta def default_suggestions : list name := default_bundles

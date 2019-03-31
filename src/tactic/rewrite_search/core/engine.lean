@@ -1,5 +1,6 @@
-import lib.pretty_print
 import tactic.rewrite_search.discovery.collect
+
+import lib.string
 
 import .types
 import .debug
@@ -17,7 +18,7 @@ private meta def chop : list char → list string → list string
 | (c :: rest) l := chop rest $ list.join $ l.map $ string.split_on c
 
 meta def tokenise_expr (e : expr) : tactic (string × list string) := do
-  pp ← pretty_print e,
+  pp ← to_string <$> tactic.pp e,
   pure (pp, chop [' '/-, '(', ')'-/] [pp])
 
 namespace search_state
@@ -51,7 +52,7 @@ private meta def find_vertex_aux (pp : string) : list vertex → option vertex
 -- Find the vertex with the given (e : expr), or return the null verterx if not
 -- found.
 meta def find_vertex (e : expr) : tactic (option vertex) := do
-  pp ← pretty_print e,
+  pp ← to_string <$> tactic.pp e,
   return (g.vertices.find_key pp)
 
 -- Forcibly add a new vertex to the vertex table. You probably actually want to call
@@ -175,7 +176,7 @@ meta def be_desperate (goals : list pair) : tactic (search_state α β γ δ × 
   else do
     let g := g.mutate_stats {g.stats with num_discovers := g.stats.num_discovers + 1},
     let verts := (goals.map sided_pair.to_list).join,
-    exprs ← list.erase_duplicates <$> (verts.mmap $ λ v, vertex.exp <$> g.vertices.get v),
+    exprs ← list.erase_dup <$> (verts.mmap $ λ v, vertex.exp <$> g.vertices.get v),
     (prog, new_cands) ← discovery.collect_more g.conf g.rs g.prog exprs,
     let g := {g with prog := prog, rs := g.rs.append new_cands},
     g ← if new_cands.length = 0 then pure g else g.unmark_all_visited,

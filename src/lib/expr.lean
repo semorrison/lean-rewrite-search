@@ -2,7 +2,6 @@ import data.list
 import tactic.where
 
 import .string
-import .pretty_print
 
 meta structure binder :=
 (name : name)
@@ -22,7 +21,7 @@ meta def set_binder_info : binder → _root_.binder_info → binder
 
 meta def pretty_print : binder → tactic string
 | ⟨n, e, bi⟩ := let brackets := where.binder_brackets bi in do
-  ppe ← _root_.pretty_print e,
+  ppe ← to_string <$> tactic.pp e,
   return $ brackets.1 ++ n.to_string ++ " : " ++ ppe ++ brackets.2
 
 private meta def instantiate_list_aux : list binder → list binder → list binder
