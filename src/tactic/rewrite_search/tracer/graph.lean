@@ -105,10 +105,10 @@ do c ← tactic.unsafe_run_io (try_launch_with_paths SEARCH_PATHS),
      let vs : visualiser := ⟨c⟩ in do
      vs.publish "S", init_result.pure vs
    | spawn_result.abort reason :=
-     init_result.fail ("Error! " ++ reason)
+     init_result.fail ("Abort! " ++ reason)
    | spawn_result.failure      := do
      reason ← tactic.unsafe_run_io diagnose_launch_failure,
-     init_result.fail ("Error! " ++ reason)
+     init_result.fail ("Failure! " ++ reason)
    | spawn_result.missing      :=
      init_result.fail "Error! bug: could not determine client location"
    end
