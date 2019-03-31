@@ -1,4 +1,5 @@
 import tactic.basic
+import data.option
 import .options
 
 universe u

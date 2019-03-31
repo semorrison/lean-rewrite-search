@@ -1,5 +1,7 @@
 import tactic.rewrite_search.discovery.collect
 
+import lib.string
+
 import .types
 import .debug
 import .backtrack
