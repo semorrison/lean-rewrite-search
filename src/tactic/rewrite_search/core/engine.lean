@@ -175,7 +175,7 @@ meta def be_desperate (goals : list pair) : tactic (search_state α β γ δ × 
   else do
     let g := g.mutate_stats {g.stats with num_discovers := g.stats.num_discovers + 1},
     let verts := (goals.map sided_pair.to_list).join,
-    exprs ← list.erase_duplicates <$> (verts.mmap $ λ v, vertex.exp <$> g.vertices.get v),
+    exprs ← list.erase_dup <$> (verts.mmap $ λ v, vertex.exp <$> g.vertices.get v),
     (prog, new_cands) ← discovery.collect_more g.conf g.rs g.prog exprs,
     let g := {g with prog := prog, rs := g.rs.append new_cands},
     g ← if new_cands.length = 0 then pure g else g.unmark_all_visited,

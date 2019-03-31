@@ -26,7 +26,7 @@ meta def try_everything (conf : config) (rs : list (expr × bool)) (p : progress
       else
         none) <$> find_all_rewrites,
     lems ← load_names lems,
-    let rws := (rewrite_list_from_lemmas lems).filter $ λ rw, ¬rs.contains rw,
+    let rws := (rewrite_list_from_lemmas lems).filter $ λ rw, rw ∉ rs,
     rws ← rws.mfilter $ λ rw, is_promising_rewrite rw sample,
     if conf.trace_discovery then do
       let n := rws.length,
@@ -34,7 +34,7 @@ meta def try_everything (conf : config) (rs : list (expr × bool)) (p : progress
         discovery_trace "The entire current environment was searched, and no interesting rewrites could be found!"
       else do
         discovery_trace format!"The entire current environment was searched, and we have added {n} new rewrites(s) for consideration." ff,
-        discovery_trace format!"Lemmas: {(rws.map prod.fst).erase_duplicates}"
+        discovery_trace format!"Lemmas: {(rws.map prod.fst).erase_dup}"
     else skip,
     return (p, rws)
 

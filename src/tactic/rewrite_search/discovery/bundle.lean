@@ -96,8 +96,8 @@ meta def bundle_ref.get_members (r : bundle_ref) : tactic (list name) := bundle_
 meta def bundle_ref.set_members (r : bundle_ref) (l : list name) : tactic unit := bundle_attr.set r.name l tt
 
 meta def collect_bundle_members (l : list bundle_ref) : tactic (list name) := do
-  l ← l.erase_duplicates.mmap bundle_ref.get_members,
-  return l.join.erase_duplicates
+  l ← l.erase_dup.mmap bundle_ref.get_members,
+  return l.join.erase_dup
 
 meta def try_get_bundle (n : name) : tactic (option (bundle_ref)) := do
   get_bundle_names >>= try_find_bundle_by_name n
@@ -127,7 +127,7 @@ meta def search_attr : user_attribute unit (list name) := {
     mk_const n >>= assert_acceptable_lemma,
     for_each_annotated_bundle search_attr n $ λ t, do
       mems ← t.get_members,
-      if mems.contains n then skip
+      if n ∈ mems then skip
       else t.set_members (n :: mems)
   ),
   before_unset := some (λ n _, do

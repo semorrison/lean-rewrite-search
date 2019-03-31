@@ -85,7 +85,7 @@ meta def build_rw_tactic (rs : list (expr × bool)) (hs : list ℕ) : tactic str
   return $ "erw [" ++ (string.intercalate ", " rws) ++ "]"
 
 meta def explain_tree_aux (rs : list (expr × bool)) : app_addr → tactic (option (list string))
-| (app_addr.rw rws) := some <$> list.singleton <$> build_rw_tactic rs rws
+| (app_addr.rw rws) := (λ a, some [a]) <$> build_rw_tactic rs rws
 | (app_addr.node ⟨func, arg⟩) := do
   sf ← match func with | none := pure none | some func := explain_tree_aux func end,
   sa ← match arg  with | none := pure none | some arg  := explain_tree_aux arg  end,
