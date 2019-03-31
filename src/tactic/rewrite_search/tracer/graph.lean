@@ -15,11 +15,12 @@ open io.process.stdio
 def SUCCESS_CHAR : string := "S"
 def ERROR_CHAR   : string := "E"
 def SEARCH_PATHS : list string := [
-  "_target/deps/lean-tidy/res/graph_tracer",
+  "_target/deps/lean-rewrite-search/res/graph_tracer",
   "res/graph_tracer"
 ]
 
-def get_app_path (dir : string) (app : string) : string := dir ++ "/" ++ app ++ ".py"
+def get_app_path (dir : string) (app : string) : string :=
+dir ++ "/" ++ app ++ ".py"
 
 def args (dir : string) (app : string) : io.process.spawn_args := {
   cmd    := "python3",
@@ -34,11 +35,13 @@ def args (dir : string) (app : string) : io.process.spawn_args := {
 }
 
 structure visualiser :=
-  (proc : io.proc.child)
-meta def visualiser.publish (v : visualiser) (s : string) : tactic unit :=
-  tactic.unsafe_run_io (io.fs.write v.proc.stdin (s.to_char_buffer.push_back '\n') >> io.fs.flush v.proc.stdin)
+(proc : io.proc.child)
+meta def visualiser.publish (v : visualiser) (f : format) : tactic unit :=
+tactic.unsafe_run_io $ do
+  io.fs.write v.proc.stdin (f.to_string.to_char_buffer.push_back '\n'),
+  io.fs.flush v.proc.stdin
 meta def visualiser.pause (v : visualiser) : tactic unit :=
-  tactic.unsafe_run_io (do io.fs.read v.proc.stdout 1, return ())
+tactic.unsafe_run_io (do io.fs.read v.proc.stdout 1, return ())
 
 def file_exists (path : string) : io bool := do
   c ← io.proc.spawn { cmd := "test", args := ["-f", path] },
@@ -64,7 +67,7 @@ meta def try_launch_with_path (path : string) : io spawn_result := do
   if ex then do
     c ← io.proc.spawn (args path "client"),
     buff ← io.fs.read c.stdout 1,
-    str ← pure (buff.to_string),
+    str ← pure buff.to_string,
     if str = SUCCESS_CHAR then
       return (spawn_result.success c)
     else if str = ERROR_CHAR then do
@@ -73,7 +76,7 @@ meta def try_launch_with_path (path : string) : io spawn_result := do
     else if str = "" then
       return spawn_result.failure
     else
-      return (spawn_result.abort (format!"bug: unknown client status character \"{str}\"").to_string)
+      return $ spawn_result.abort (format!"bug: unknown client status character \"{str}\"").to_string
   else
     return spawn_result.missing
 
@@ -95,35 +98,39 @@ meta def diagnose_launch_failure : io string := do
   | ret := return (format!"bug: unexpected return code {ret} during launch failure diagnosis").to_string
   end
 
-meta def graph_tracer_init : tactic (init_result visualiser) := do
-  c ← tactic.unsafe_run_io (try_launch_with_paths SEARCH_PATHS),
-  match c with
-  | spawn_result.success c    := let vs : visualiser := ⟨ c ⟩ in do vs.publish "S", init_result.pure vs
-  | spawn_result.abort reason := init_result.fail ("Error! " ++ reason)
-  | spawn_result.failure      := do
-    reason ← tactic.unsafe_run_io diagnose_launch_failure,
-    init_result.fail ("Error! " ++ reason)
-  | spawn_result.missing      := init_result.fail "Error! bug: could not determine client location"
-  end
+meta def graph_tracer_init : tactic (init_result visualiser) :=
+do c ← tactic.unsafe_run_io (try_launch_with_paths SEARCH_PATHS),
+   match c with
+   | spawn_result.success c    :=
+     let vs : visualiser := ⟨c⟩ in do
+     vs.publish "S", init_result.pure vs
+   | spawn_result.abort reason :=
+     init_result.fail ("Error! " ++ reason)
+   | spawn_result.failure      := do
+     reason ← tactic.unsafe_run_io diagnose_launch_failure,
+     init_result.fail ("Error! " ++ reason)
+   | spawn_result.missing      :=
+     init_result.fail "Error! bug: could not determine client location"
+   end
 
-meta def graph_tracer_publish_vertex (vs : visualiser) (v : vertex) : tactic unit := do
-  vs.publish (to_string (format!"V|{v.id.to_string}|{v.s.to_string}|{v.id}"))
+meta def graph_tracer_publish_vertex (vs : visualiser) (v : vertex) : tactic unit :=
+vs.publish format!"V|{v.id.to_string}|{v.s.to_string}|{v.id}"
 
 meta def graph_tracer_publish_edge (vs : visualiser) (e : edge) : tactic unit :=
-  vs.publish (to_string (format!"E|{e.f.to_string}|{e.t.to_string}"))
+vs.publish format!"E|{e.f.to_string}|{e.t.to_string}"
 
 meta def graph_tracer_publish_visited (vs : visualiser) (v : vertex) : tactic unit :=
-  vs.publish (to_string (format!"B|{v.id.to_string}"))
+vs.publish format!"B|{v.id.to_string}"
 
-meta def graph_tracer_publish_finished (vs : visualiser) (es : list edge) : tactic unit := do
-  es.mmap' (λ e : edge, vs.publish (to_string (format!"F|{e.f.to_string}|{e.t.to_string}"))),
-  vs.publish (to_string (format!"D"))
+meta def graph_tracer_publish_finished (vs : visualiser) (es : list edge) : tactic unit :=
+do es.mmap' (λ e : edge, vs.publish format!"F|{e.f.to_string}|{e.t.to_string}"),
+   vs.publish format!"D"
 
 meta def graph_tracer_dump (vs : visualiser) (str : string) : tactic unit :=
-  vs.publish (str ++ "\n")
+vs.publish (str ++ "\n")
 
 meta def graph_tracer_pause (vs : visualiser) : tactic unit :=
-  vs.pause
+vs.pause
 
 end tactic.rewrite_search.tracer.graph
 
