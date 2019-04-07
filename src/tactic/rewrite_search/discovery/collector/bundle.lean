@@ -31,6 +31,9 @@ meta def score_bundle (b : bundle_ref) (sample : list expr) : tactic ℕ := do
 -- (bundles added, random lemmas found and used) so that they can be addressed
 -- more easily/conveniently.
 
+def min_rel {α : Type} (l : list α) (r : α → α → Prop) [decidable_rel r] : option α :=
+l.foldl (λ o a, match o with | none := some a | some b := if r b a then b else a end) none
+
 meta def try_bundles (conf : config) (rs : list (expr × bool)) (p : progress) (sample : list expr) : tactic (progress × list (expr × bool)) :=
   if p.persistence < persistence.try_bundles then
     return (p, [])
@@ -39,7 +42,7 @@ meta def try_bundles (conf : config) (rs : list (expr × bool)) (p : progress) (
     bs ← bs.mmap $ λ b, (do s ← score_bundle b sample, return (b, s)),
     (awful_bs, interesting_bs) ← pure $ bs.partition $ λ b, b.2 = 0,
     let p := {p with seen_bundles := p.seen_bundles.append (awful_bs.map prod.fst)},
-    match interesting_bs.min_rel (λ a b, a.2 > b.2) with
+    match min_rel interesting_bs (λ a b, a.2 > b.2) with
     | none := do
       if conf.trace_discovery then
       discovery_trace format!"Could not find any promising bundles of the {bs.length} non-suggested bundles considered: {bs.map $ λ b, b.1.bundle.name}"

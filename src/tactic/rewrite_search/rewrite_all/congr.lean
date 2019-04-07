@@ -70,11 +70,11 @@ meta def expr_lens.to_tactic_string : expr_lens → tactic string
   return $ to_string format!"(arg \"{pp}\" {rest})"
 
 private meta def expr.app_map_aux {α} (F : expr_lens → expr → tactic (list α)) : expr_lens → expr → tactic (list α)
-| l (expr.app f x) := list.join <$> [
+| l (expr.app f x) := list.join <$> monad.sequence [
     F l (expr.app f x),
     expr.app_map_aux (expr_lens.app_arg l x) f,
     expr.app_map_aux (expr_lens.app_fun l f) x
-  ].factor <|> pure []
+  ] <|> pure []
 | l e := F l e <|> pure []
 
 meta def expr.app_map {α} (F : expr_lens → expr → tactic (list α)) : expr → tactic (list α)
