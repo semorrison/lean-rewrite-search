@@ -1,6 +1,6 @@
 import data.buffer
 
-import .list
+import data.list.defs
 
 def string.lconcat : list string → string := string.intercalate ""
 
