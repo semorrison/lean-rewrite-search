@@ -1,4 +1,3 @@
-import lib.env
 import tactic.rewrite_search.core.common
 
 import .types
