@@ -6,58 +6,50 @@ open interactive
 
 -- TODO We currently don't use `list.erase_dup`. Is it necessary?!
 
--- return a lazy list of (t, n, k) where
---   t is a `tracked_rewrite` (i.e. a pair (e' : expr, prf : e = e'))
---   n is the index of the rule r used from rs, and
---   k is the index of t in all_rewrites r e.
--- meta def all_rewrites_mllist
---   (rs : list (expr × bool)) (e : expr)
---   (cfg : rewrite_all.cfg := {md := semireducible}) :
---   mllist tactic (tracked_rewrite × ℕ × ℕ) :=
--- let l : list (tactic (mllist tactic (tracked_rewrite × ℕ × ℕ))) :=
---   rs.enum.map $ λ r : ℕ × expr × bool,
---   do a : list tracked_rewrite ← all_rewrites r.2 e cfg,
---      return $ mllist.of_list $ list.map (λ p : ℕ × tracked_rewrite, (p.2, p.1, r.1)) (a.enum) in
--- (mllist.m_of_list l).join
-
-meta def all_rewrites_mllist
+/--
+return a lazy list of (t, n, k) where
+* `t` is a `tracked_rewrite` (i.e. a pair `(e' : expr, prf : e = e')`)
+* `n` is the index of the rule `r` used from `rs`, and
+* `k` is the index of `t` in `all_rewrites r e`.
+-/
+meta def all_rewrites
   (rs : list (expr × bool)) (e : expr)
   (cfg : rewrite_all.cfg := {md := semireducible}) :
   mllist tactic (tracked_rewrite × ℕ × ℕ) :=
 (mllist.of_list rs).enum.bind_ $ λ r,
-   ((all_rewrites_lazy r.2 e cfg).enum).map (λ p, (p.2, p.1, r.1))
-
-meta def all_rewrites_list (rs : list (expr × bool)) (e : expr) (cfg : rewrite_all.cfg := {md := semireducible}) : tactic (list (tracked_rewrite × ℕ × ℕ)) :=
-  (all_rewrites_mllist rs e cfg).force
+   ((rewrite_all_lazy r.2 e cfg).enum).map (λ p, (p.2, p.1, r.1))
 
 meta def perform_nth_rewrite (r : expr × bool) (n : ℕ) : tactic unit :=
 do e ← target,
-   rewrites ← all_rewrites r e,
+   rewrites ← rewrite_all r e,
    lrw ← rewrites.nth n,
    lrw.proof >>= replace_target lrw.exp
 
-meta def all_rewrites_using (a : name) (e : expr) : tactic (list tracked_rewrite) :=
+meta def all_rewrites_using (a : name) (e : expr) :
+  tactic (list tracked_rewrite) :=
 do names ← attribute.get_instances a,
    rules ← names.mmap $ mk_const,
    let pairs := rules.map (λ e, (e, ff)) ++ rules.map (λ e, (e, tt)),
-   results ← pairs.mmap $ λ r, all_rewrites r e,
+   results ← pairs.mmap $ λ r, rewrite_all r e,
    pure results.join
 
 namespace tactic.interactive
 
-private meta def perform_nth_rewrite' (n : parse small_nat) (q : parse rw_rules) (e : expr) : tactic (expr × expr) :=
-do rewrites ← q.rules.mmap $ λ p : rw_rule, to_expr p.rule tt ff >>= λ r, all_rewrites (r, p.symm) e,
+private meta def perform_nth_rewrite'
+  (n : parse small_nat) (q : parse rw_rules) (e : expr) :
+  tactic (expr × expr) :=
+do rewrites ← q.rules.mmap $
+     (λ p : rw_rule, to_expr p.rule tt ff >>= λ r, rewrite_all (r, p.symm) e),
    let rewrites := rewrites.join,
    guard (n < rewrites.length) <|> fail format!"failed: not enough rewrites found",
    lrw ← rewrites.nth n,
    pf ← lrw.proof,
    return (lrw.exp, pf)
 
-meta def perform_nth_rewrite (n : parse small_nat) (q : parse rw_rules) : tactic unit :=
+meta def perform_nth_rewrite
+  (n : parse small_nat) (q : parse rw_rules) : tactic unit :=
 do e ← target,
    (new_t, prf) ← perform_nth_rewrite' n q e,
-  --  trace new_t,
-  --  trace prf,
    replace_target new_t prf,
    tactic.try tactic.reflexivity
 

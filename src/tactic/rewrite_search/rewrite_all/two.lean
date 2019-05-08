@@ -127,11 +127,6 @@ do ty ← infer_type eq,
   let L := kabstracter matcher lhs t,
   return $ L.mfilter_map (λ p, do_substitutions eq symm t lhs rhs p.1 p.2.head p.2.tail)
 
-meta structure rewrite_all.cfg extends rewrite_cfg :=
-(try_simp   : bool := ff) -- TODO move the handling logic for me into rewrite_all.wrappers
-(discharger : tactic unit := skip) -- FIXME this is ignored for now
-(simplifier : expr → tactic (expr × expr) := λ e, failed) -- FIXME get rid of this?
-
 meta def all_rewrites_lazy (r : expr × bool) (t : expr) (cfg : rewrite_all.cfg := {}) : mllist tactic (expr × (tactic expr)) :=
 (all_rewrites_core t r.1 r.2).filter_map (λ p, if p.2.2 = [] then some (p.1, p.2.1) else none)
 

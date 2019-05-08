@@ -5,13 +5,9 @@
 import data.mllist
 import lib.pretty_print
 import lib.tactic
+import .common
 
 open tactic
-
-meta structure rewrite_all.cfg extends rewrite_cfg :=
-(try_simp   : bool := ff) -- TODO move the handling logic for me into rewrite_all.wrappers
-(discharger : tactic unit := skip)
-(simplifier : expr → tactic (expr × expr) := λ e, failed)
 
 meta def rewrite_without_new_mvars (r : expr) (e : expr) (cfg : rewrite_all.cfg := {}) : tactic (expr × expr) :=
 lock_tactic_state $ -- This makes sure that we forget everything in between rewrites; otherwise we don't correctly find everything!
@@ -140,13 +136,13 @@ def remove_adjacent_duplicates {α β} (f : α → β) [decidable_eq β] : list 
 
 
 
-meta def all_rewrites (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) : tactic (list (expr × expr)) :=
+meta def rewrite_all (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) : tactic (list (expr × expr)) :=
 do
    results ← rewrite_fold (rewrite_F cfg r) e [],
-  --  tactic.trace results,
    return (remove_adjacent_duplicates (λ p, p.1) results)
 
-meta def all_rewrites_lazy (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) : tactic (mllist tactic (expr × tactic expr)) :=
-do L ← all_rewrites r e cfg,
+meta def rewrite_all_lazy (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) : mllist tactic (expr × tactic expr) :=
+mllist.squash $
+do L ← rewrite_all r e cfg,
    let L : list (expr × tactic expr) := L.map (λ p, (p.1, pure p.2)),
    return (mllist.of_list L)

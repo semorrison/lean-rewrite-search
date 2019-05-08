@@ -12,7 +12,7 @@ import .common
 open tactic
 
 -- Sometimes `mk_congr_arg` fails, when the function is 'superficially dependent'.
--- This hack dsimp's the function before building the `congr_arg` expression.
+-- This hack `dsimp`s the function before building the `congr_arg` expression.
 -- Unfortunately it creates some dummy hypotheses that I can't work out how to dispose of cleanly.
 meta def mk_congr_arg_using_dsimp (G W : expr) (u : list name) : tactic expr :=
 do
@@ -69,7 +69,8 @@ meta def expr_lens.to_tactic_string : expr_lens → tactic string
   rest ← l.to_tactic_string,
   return $ to_string format!"(arg \"{pp}\" {rest})"
 
-private meta def expr.app_map_aux {α} (F : expr_lens → expr → tactic (list α)) : expr_lens → expr → tactic (list α)
+private meta def expr.app_map_aux {α} (F : expr_lens → expr → tactic (list α)) :
+  expr_lens → expr → tactic (list α)
 | l (expr.app f x) := list.join <$> monad.sequence [
     F l (expr.app f x),
     expr.app_map_aux (expr_lens.app_arg l x) f,
@@ -80,13 +81,9 @@ private meta def expr.app_map_aux {α} (F : expr_lens → expr → tactic (list 
 meta def expr.app_map {α} (F : expr_lens → expr → tactic (list α)) : expr → tactic (list α)
 | e := expr.app_map_aux F expr_lens.entire e
 
-meta structure rewrite_all.cfg extends rewrite_cfg :=
-(try_simp   : bool := ff) -- TODO move the handling logic for me into rewrite_all.wrappers
-(discharger : tactic unit := skip)
-(simplifier : expr → tactic (expr × expr) := λ e, failed) -- FIXME this currently breaks "explanations"
-
 meta def rewrite_without_new_mvars (r : expr) (e : expr) (cfg : rewrite_all.cfg := {}) : tactic (expr × expr) :=
-lock_tactic_state $ -- This makes sure that we forget everything in between rewrites; otherwise we don't correctly find everything!
+lock_tactic_state $ -- This makes sure that we forget everything in between rewrites;
+                    -- otherwise we don't correctly find everything!
 do
    (new_t, prf, metas) ← rewrite_core r e { cfg.to_rewrite_cfg with md := semireducible },
    try_apply_opt_auto_param cfg.to_apply_cfg metas,
@@ -96,17 +93,21 @@ do
    prf ← instantiate_mvars prf, -- This is necessary because of the locked tactic state.
    return (new_t, prf)
 
--- This is a bit of a hack: we manually inspect the proof that `rewrite_core` produced, and deduce from that whether or not the entire expression was rewritten.
+-- This is a bit of a hack: we manually inspect the proof that `rewrite_core`
+-- produced, and deduce from that whether or not the entire expression was rewritten.
 meta def rewrite_is_of_entire : expr → bool
-| `(@eq.rec _ %%term %%C %%p _ _) := match C with
-                                     | `(λ p, _ = p) := tt
-                                     | _ := ff
-                                     end
+| `(@eq.rec _ %%term %%C %%p _ _) :=
+  match C with
+  | `(λ p, _ = p) := tt
+  | _ := ff
+  end
 | _ := ff
 
-meta def rewrite_at_lens (cfg : rewrite_all.cfg) (r : expr × bool) (l : expr_lens) (e : expr) : tactic (list tracked_rewrite) := do
+meta def rewrite_at_lens
+  (cfg : rewrite_all.cfg) (r : expr × bool) (l : expr_lens) (e : expr) :
+  tactic (list tracked_rewrite) :=
+do
   (v, pr) ← rewrite_without_new_mvars r.1 e {cfg with symm := r.2},
-
   -- Now we determine whether the rewrite transforms the entire expression or not:
   if ¬(rewrite_is_of_entire pr) then return []
   else do
@@ -121,8 +122,10 @@ meta def rewrite_at_lens (cfg : rewrite_all.cfg) (r : expr × bool) (l : expr_le
               end,
     return [⟨w, pure qr, l.to_sides⟩]
 
-meta def all_rewrites (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) : tactic (list tracked_rewrite) :=
-  e.app_map $ rewrite_at_lens cfg r
+meta def rewrite_all (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) :
+  tactic (list tracked_rewrite) :=
+e.app_map $ rewrite_at_lens cfg r
 
-meta def all_rewrites_lazy (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) : mllist tactic tracked_rewrite :=
-mllist.squash $ mllist.of_list <$> all_rewrites r e cfg
+meta def rewrite_all_lazy (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) :
+  mllist tactic tracked_rewrite :=
+mllist.squash $ mllist.of_list <$> rewrite_all r e cfg

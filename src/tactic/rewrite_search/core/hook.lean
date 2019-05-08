@@ -10,7 +10,7 @@ namespace tactic.rewrite_search
 meta def rewrite_progress := mllist tactic rewrite
 
 meta def progress_init (rs : list (expr × bool)) (exp : expr) (cfg : rewrite_all.cfg) : rewrite_progress :=
-(all_rewrites_mllist rs exp cfg)
+(all_rewrites rs exp cfg)
   .map $ λ t, ⟨t.1.exp, t.1.proof, how.rewrite t.2.1 t.2.2 t.1.addr⟩
 
 meta def progress_next (prog : rewrite_progress) : tactic (rewrite_progress × option rewrite) :=

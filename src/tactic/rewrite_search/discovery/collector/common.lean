@@ -12,7 +12,7 @@ meta def are_promising_rewrites (rws : list (expr × bool)) : list expr → tact
 -- TODO alternative (and probably better) condition:
 -- tt if the rewrite list contains an expression not seen in the rewrite_search
 -- instance, ff otherwise. Maybe too harsh/coarse?
-  e ← mllist.empty (all_rewrites_mllist rws s),
+  e ← mllist.empty (all_rewrites rws s),
   return e.down
 
 meta def is_promising_rewrite (rw : expr × bool) : list expr → tactic bool :=

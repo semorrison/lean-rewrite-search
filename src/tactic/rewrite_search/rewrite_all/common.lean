@@ -5,8 +5,12 @@ open tactic
 
 universe u
 
--- rewrite_all.2, if resurrected, needs to implement this now, see TODO below:
+meta structure rewrite_all.cfg extends rewrite_cfg :=
+(try_simp   : bool := ff) -- TODO move the handling logic for me into rewrite_all.wrappers
+(discharger : tactic unit := skip)
+(simplifier : expr → tactic (expr × expr) := λ e, failed) -- FIXME this currently breaks "explanations"
 
+-- rewrite_all.2, if resurrected, needs to implement this now, see TODO below:
 meta structure tracked_rewrite :=
 (exp : expr)
 (proof : tactic expr)
