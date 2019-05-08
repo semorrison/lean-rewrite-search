@@ -6,21 +6,29 @@ open interactive
 
 -- TODO We currently don't use `list.erase_dup`. Is it necessary?!
 
--- return a list of (e', prf, n, k) where
---   e' is a new expression,
---   prf : e = e',
+-- return a lazy list of (t, n, k) where
+--   t is a `tracked_rewrite` (i.e. a pair (e' : expr, prf : e = e'))
 --   n is the index of the rule r used from rs, and
---   k is the index of (e', prf) in all_rewrites r e.
-meta def all_rewrites_mllist (rs : list (expr × bool)) (e : expr) (cfg : rewrite_all.cfg := {md := semireducible}) : tactic (mllist tactic (tracked_rewrite × ℕ × ℕ)) := do
-  l ← rs.mmap $ λ r, all_rewrites_lazy r e cfg,
-  l ← l.enum.mmap (λ p, do
-    pe ← p.2.enum,
-    pe.map (λ q, (q.2, p.1, q.1))
-  ),
-  (mllist.of_list l).join
+--   k is the index of t in all_rewrites r e.
+-- meta def all_rewrites_mllist
+--   (rs : list (expr × bool)) (e : expr)
+--   (cfg : rewrite_all.cfg := {md := semireducible}) :
+--   mllist tactic (tracked_rewrite × ℕ × ℕ) :=
+-- let l : list (tactic (mllist tactic (tracked_rewrite × ℕ × ℕ))) :=
+--   rs.enum.map $ λ r : ℕ × expr × bool,
+--   do a : list tracked_rewrite ← all_rewrites r.2 e cfg,
+--      return $ mllist.of_list $ list.map (λ p : ℕ × tracked_rewrite, (p.2, p.1, r.1)) (a.enum) in
+-- (mllist.m_of_list l).join
+
+meta def all_rewrites_mllist
+  (rs : list (expr × bool)) (e : expr)
+  (cfg : rewrite_all.cfg := {md := semireducible}) :
+  mllist tactic (tracked_rewrite × ℕ × ℕ) :=
+(mllist.of_list rs).enum.bind_ $ λ r,
+   ((all_rewrites_lazy r.2 e cfg).enum).map (λ p, (p.2, p.1, r.1))
 
 meta def all_rewrites_list (rs : list (expr × bool)) (e : expr) (cfg : rewrite_all.cfg := {md := semireducible}) : tactic (list (tracked_rewrite × ℕ × ℕ)) :=
-  all_rewrites_mllist rs e cfg >>= mllist.force
+  (all_rewrites_mllist rs e cfg).force
 
 meta def perform_nth_rewrite (r : expr × bool) (n : ℕ) : tactic unit :=
 do e ← target,

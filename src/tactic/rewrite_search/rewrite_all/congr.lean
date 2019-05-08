@@ -5,7 +5,7 @@
 import data.list
 
 import lib.list
-import lib.mllist
+import data.mllist
 
 import .common
 
@@ -124,5 +124,5 @@ meta def rewrite_at_lens (cfg : rewrite_all.cfg) (r : expr × bool) (l : expr_le
 meta def all_rewrites (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) : tactic (list tracked_rewrite) :=
   e.app_map $ rewrite_at_lens cfg r
 
-meta def all_rewrites_lazy (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) : tactic (mllist tactic tracked_rewrite) :=
-  mllist.of_list <$> all_rewrites r e cfg
+meta def all_rewrites_lazy (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) : mllist tactic tracked_rewrite :=
+mllist.squash $ mllist.of_list <$> all_rewrites r e cfg

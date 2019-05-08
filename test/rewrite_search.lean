@@ -158,7 +158,7 @@ constants f g : ℕ → ℕ → ℕ → ℕ
 set_option trace.app_builder true
 
 -- FIXME I crash rewrite_search_2
-run_cmd do all_rewrites_lazy (`(g_0_0), tt) `(g 0 0 0)
+run_cmd do (all_rewrites_lazy (`(g_0_0), tt) `(g 0 0 0)).force
 
 lemma test : f 0 0 0 = g 0 0 0 :=
 -- by erw [f_2_2, f_1_1, g_0_2, g_2_1, ←f_g]
@@ -288,7 +288,7 @@ end tactic.rewrite_search.tesseract
 end tactic.rewrite_search.examples
 
 -- Maybe Scott wants this
--- 
+--
 -- structure cat :=
 --   (O : Type)
 --   (H : O → O → Type)
