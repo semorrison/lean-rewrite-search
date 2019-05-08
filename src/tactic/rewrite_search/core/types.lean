@@ -8,6 +8,8 @@ import .hook
 
 universes u v
 
+open tactic
+
 namespace tactic.rewrite_search
 
 def dnum : Type := ℕ

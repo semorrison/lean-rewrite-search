@@ -3,13 +3,11 @@
 -- Authors: Scott Morrison, Keeley Hoek
 
 import data.list
-
-import lib.list
 import data.mllist
 
 import .common
 
-open tactic
+namespace tactic
 
 -- Sometimes `mk_congr_arg` fails, when the function is 'superficially dependent'.
 -- This hack `dsimp`s the function before building the `congr_arg` expression.
@@ -21,6 +19,8 @@ do
   t' ← s.dsimplify u t {fail_if_unchanged := ff},
   definev `_mk_congr_arg_aux t' G,
   to_expr ```(congr_arg _mk_congr_arg_aux %%W)
+
+namespace rewrite_all
 
 meta inductive expr_lens
 | app_fun : expr_lens → expr → expr_lens
@@ -69,17 +69,17 @@ meta def expr_lens.to_tactic_string : expr_lens → tactic string
   rest ← l.to_tactic_string,
   return $ to_string format!"(arg \"{pp}\" {rest})"
 
-private meta def expr.app_map_aux {α} (F : expr_lens → expr → tactic (list α)) :
+private meta def app_map_aux {α} (F : expr_lens → expr → tactic (list α)) :
   expr_lens → expr → tactic (list α)
 | l (expr.app f x) := list.join <$> monad.sequence [
     F l (expr.app f x),
-    expr.app_map_aux (expr_lens.app_arg l x) f,
-    expr.app_map_aux (expr_lens.app_fun l f) x
+    app_map_aux (expr_lens.app_arg l x) f,
+    app_map_aux (expr_lens.app_fun l f) x
   ] <|> pure []
 | l e := F l e <|> pure []
 
-meta def expr.app_map {α} (F : expr_lens → expr → tactic (list α)) : expr → tactic (list α)
-| e := expr.app_map_aux F expr_lens.entire e
+meta def app_map {α} (F : expr_lens → expr → tactic (list α)) : expr → tactic (list α)
+| e := app_map_aux F expr_lens.entire e
 
 meta def rewrite_without_new_mvars (r : expr) (e : expr) (cfg : rewrite_all.cfg := {}) : tactic (expr × expr) :=
 lock_tactic_state $ -- This makes sure that we forget everything in between rewrites;
@@ -122,10 +122,16 @@ do
               end,
     return [⟨w, pure qr, l.to_sides⟩]
 
+end rewrite_all
+
+open rewrite_all
+
 meta def rewrite_all (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) :
   tactic (list tracked_rewrite) :=
-e.app_map $ rewrite_at_lens cfg r
+app_map (rewrite_at_lens cfg r) e
 
 meta def rewrite_all_lazy (r : expr × bool) (e : expr) (cfg : rewrite_all.cfg := {}) :
   mllist tactic tracked_rewrite :=
 mllist.squash $ mllist.of_list <$> rewrite_all r e cfg
+
+end tactic

@@ -6,6 +6,8 @@ open interactive
 
 -- TODO We currently don't use `list.erase_dup`. Is it necessary?!
 
+open tactic.rewrite_all
+
 /--
 return a lazy list of (t, n, k) where
 * `t` is a `tracked_rewrite` (i.e. a pair `(e' : expr, prf : e = e')`)
