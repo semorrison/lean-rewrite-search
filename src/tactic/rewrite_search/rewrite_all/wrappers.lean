@@ -1,4 +1,4 @@
-import .old -- We can alternatively import `.kabstract` here. It's faster, but doesn't find all rewrites.
+import .congr -- We can alternatively import `.kabstract` here. It's faster, but doesn't find all rewrites.
 
 open tactic
 open lean.parser
