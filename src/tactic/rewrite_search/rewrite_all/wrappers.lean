@@ -1,3 +1,6 @@
+-- Copyright (c) 2018 Keeley Hoek. All rights reserved.
+-- Released under Apache 2.0 license as described in the file LICENSE.
+-- Authors: Keeley Hoek, Scott Morrison
 import .congr -- We can alternatively import `.kabstract` here. It's faster, but doesn't find all rewrites.
 
 open tactic

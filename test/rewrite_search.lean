@@ -1,18 +1,9 @@
+-- Copyright (c) 2018 Keeley Hoek. All rights reserved.
+-- Released under Apache 2.0 license as described in the file LICENSE.
+-- Authors: Keeley Hoek, Scott Morrison
 import tactic.rewrite_search
 
 namespace tactic.rewrite_search.testing
-
-axiom foo' : [6] = [7]
-axiom bar' : [[5],[5]] = [[6],[6]]
-
-example : [[7],[6]] = [[5],[5]] :=
-begin
-  nth_rewrite_lhs 0 foo',
-  nth_rewrite_rhs 0 bar',
-  nth_rewrite_lhs 0 ← foo',
-  nth_rewrite_lhs 0 ← foo'
-  -- FIXME this isn't really the behaviour I want: I'd like to be able to rewrite these two separately.
-end
 
 example : [[7],[6]] = [[5],[5]] :=
 begin
@@ -157,8 +148,8 @@ constants f g : ℕ → ℕ → ℕ → ℕ
 
 set_option trace.app_builder true
 
--- FIXME I crash rewrite_search_2
-run_cmd do (all_rewrites_lazy (`(g_0_0), tt) `(g 0 0 0)).force
+-- FIXME crashes when using the kabstract back end
+run_cmd do (tactic.rewrite_all_lazy (`(g_0_0), tt) `(g 0 0 0)).force
 
 lemma test : f 0 0 0 = g 0 0 0 :=
 -- by erw [f_2_2, f_1_1, g_0_2, g_2_1, ←f_g]
