@@ -1,19 +1,6 @@
--- This data required by `rewrite_all` must be present to avoid some
--- monad universe related issues.
+import tactic.rewrite_search.rewrite_all.common
 
 universe u
-
-@[derive decidable_eq]
-inductive side
-| L
-| R
-def side.other : side → side
-| side.L := side.R
-| side.R := side.L
-def side.to_string : side → string
-| side.L := "L"
-| side.R := "R"
-instance : has_to_string side := ⟨side.to_string⟩
 
 @[derive decidable_eq]
 structure sided_pair (α : Type u) :=

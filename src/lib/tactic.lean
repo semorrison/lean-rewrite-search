@@ -1,5 +1,4 @@
 import tactic.basic
-import .options
 
 universe u
 
@@ -22,8 +21,8 @@ meta def is_eq_or_iff_after_binders : expr → bool
   | _                  := ff
 
 meta def get_binder_types : expr → list expr
-  | (expr.pi n bi d b) := d :: get_binder_types b
-  | _                  := []
+| (expr.pi n bi d b) := d :: get_binder_types b
+| _                  := []
 
 -- TODO is there any way to replace `type : expr` with an honest `α : Type`?
 -- Maybe at least a `type : name`? In this case probably just need to read about
@@ -46,11 +45,19 @@ do
   apply_core refl {new_goals := new_goals.non_dep_only},
   instantiate_mvars m
 
-meta def simp_expr (t : expr) (cfg : simp_config := {}) (discharger : tactic unit := failed) (no_defaults := ff) (attr_names : list name := []) (hs : list simp_arg_type := []) : tactic (expr × expr) := do
+meta def simp_expr
+  (t : expr) (cfg : simp_config := {}) (discharger : tactic unit := failed)
+  (no_defaults := ff) (attr_names : list name := []) (hs : list simp_arg_type := []) :
+  tactic (expr × expr) :=
+do
   (s, to_unfold) ← mk_simp_set no_defaults attr_names hs,
   simplify s to_unfold t cfg `eq discharger
 
-meta def dsimp_expr (t : expr) (cfg : dsimp_config := {}) (discharger : tactic unit := failed) (no_defaults := ff) (attr_names : list name := []) (hs : list simp_arg_type := []) : tactic expr := do
+meta def dsimp_expr
+  (t : expr) (cfg : dsimp_config := {}) (discharger : tactic unit := failed)
+  (no_defaults := ff) (attr_names : list name := []) (hs : list simp_arg_type := []) :
+  tactic expr :=
+do
   (s, to_unfold) ← mk_simp_set no_defaults attr_names hs,
   s.dsimplify to_unfold t cfg
 

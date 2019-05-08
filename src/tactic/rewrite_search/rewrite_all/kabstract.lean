@@ -1,9 +1,8 @@
-import lib.tactic
 import .common
 
 universes u
 
-open tactic
+namespace tactic
 
 meta def kabstract_no_new_goals (t e : expr) (md : transparency) : tactic expr :=
 do gs ← get_goals,
@@ -12,7 +11,9 @@ do gs ← get_goals,
    guard (ng = gs.length),
    return r
 
-meta def kabstracter'
+namespace rewrite_all
+
+meta def kabstracter_aux
   (pattern : tactic (expr × expr × list expr))
   (lhs_replacer : list expr → tactic expr) :
   expr × list (expr × (list expr)) → tactic (expr × list (expr × (list expr)))
@@ -21,22 +22,16 @@ meta def kabstracter'
   (e, e_type, mvars) ← pattern,
   t' ← kabstract_no_new_goals t e semireducible,
   -- TODO use the discharger to clear remaining metavariables
-  -- trace "kabstract:",
-  -- trace t,
-  -- trace e,
-  -- trace mvars,
-  -- mvars.mmap (λ m, infer_type m) >>= trace,
-  -- trace t',
   guard t'.has_var,
   w ← mk_meta_var e_type,
   let t'' := t'.instantiate_var w,
   mvars' ← mvars.mmap instantiate_mvars,
-  return (t'', (w, mvars') :: L) -- FIXME should there be a prime here??
+  return (t'', (w, mvars') :: L)
 
 meta def kabstracter
   (pattern : tactic (expr × expr × list expr))
   (lhs_replacer : list expr → tactic expr) (t : expr) : mllist tactic (expr × list (expr × list expr)) :=
-mllist.fix (kabstracter' pattern lhs_replacer) (t, [])
+mllist.fix (kabstracter_aux pattern lhs_replacer) (t, [])
 
 meta def get_lhs : expr -> bool → list expr -> tactic (expr × expr × list expr)
 | (expr.pi n bi d b) symm mvars :=
@@ -65,7 +60,7 @@ meta def do_substitutions
   (lhs rhs : list expr → tactic expr)
   (t_abstracted : expr)
   (rewrite_mvar : expr × list expr)
-  (restore_mvars : list (expr × list expr)) : tactic (expr × tactic expr × list expr) :=
+  (restore_mvars : list (expr × list expr)) : tactic (tracked_rewrite × list expr) :=
 lock_tactic_state $
 do -- We first restore all the "other" metavariables to their original values.
   --  trace "do_substitutions",
@@ -85,29 +80,18 @@ do -- We first restore all the "other" metavariables to their original values.
     -- The lemma itself proves `r = r'`.
     let inner_proof := rewrite_mvar.2.reverse.foldl (λ f x : expr, f x) eq,
     inner_proof ← if symm then mk_eq_symm inner_proof else return inner_proof,
-    -- trace "inner_proof:",
-    -- trace inner_proof,
 
     -- Next we compute the motive.
     let t_with_var := mvars_to_var t_restored,
     n ← mk_fresh_name,
-    -- trace "--",
-    -- trace t_with_var,
-    -- trace t_original,
-    -- trace "r:",
-    -- trace r,
     ty ← infer_type r,
     feq ← mk_const `eq,
     v ← mk_mvar,
     let C := expr.lam n binder_info.default ty (feq v t_original t_with_var),
-    -- trace "motive:",
-    -- trace C,
 
     -- ... and prepare the actual proof.
     refl ← mk_eq_refl t_original,
     proof ← to_expr ```(@eq.rec _ %%r %%C %%refl _ %%inner_proof),
-    -- trace "proof:",
-    -- trace proof,
     infer_type proof, -- this is a sanity check (perhaps we should be doing this earlier?)
     return proof
    },
@@ -116,9 +100,9 @@ do -- We first restore all the "other" metavariables to their original values.
    result ← instantiate_mvars t_restored,
 
    metas : list expr ← rewrite_mvar.2.mfilter (λ m, do r ← is_assigned m <|> return tt, return ¬ r),
-   return (result, proof_tactic, metas)
+   return (⟨result, proof_tactic, none⟩, metas)
 
-meta def all_rewrites_core (t eq : expr) (symm : bool) : mllist tactic (expr × tactic expr × list expr) :=
+meta def all_rewrites_core (t eq : expr) (symm : bool) : mllist tactic (tracked_rewrite × list expr) :=
 mllist.squash $
 do ty ← infer_type eq,
   let matcher := get_lhs ty symm [],
@@ -127,8 +111,14 @@ do ty ← infer_type eq,
   let L := kabstracter matcher lhs t,
   return $ L.mfilter_map (λ p, do_substitutions eq symm t lhs rhs p.1 p.2.head p.2.tail)
 
-meta def all_rewrites_lazy (r : expr × bool) (t : expr) (cfg : rewrite_all.cfg := {}) : mllist tactic (expr × (tactic expr)) :=
-(all_rewrites_core t r.1 r.2).filter_map (λ p, if p.2.2 = [] then some (p.1, p.2.1) else none)
+end rewrite_all
 
-meta def all_rewrites (r : expr × bool) (t : expr) (cfg : rewrite_all.cfg := {}) : tactic (list (expr × expr)) :=
-mllist.force $ (all_rewrites_lazy r t cfg).mmap (λ p, do r ← p.2, return (p.1, r))
+open rewrite_all
+
+meta def rewrite_all_lazy (r : expr × bool) (t : expr) (cfg : rewrite_all.cfg := {}) : mllist tactic tracked_rewrite :=
+(all_rewrites_core t r.1 r.2).filter_map (λ p, if p.2 = [] then some p.1 else none)
+
+meta def rewrite_all (r : expr × bool) (t : expr) (cfg : rewrite_all.cfg := {}) : tactic (list tracked_rewrite) :=
+mllist.force $ rewrite_all_lazy r t cfg
+
+end tactic

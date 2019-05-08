@@ -1,10 +1,8 @@
-import .congr
+import .old -- We can alternatively import `.kabstract` here. It's faster, but doesn't find all rewrites.
 
 open tactic
 open lean.parser
 open interactive
-
--- TODO We currently don't use `list.erase_dup`. Is it necessary?!
 
 open tactic.rewrite_all
 

@@ -110,7 +110,7 @@ meta def compile_rewrites_aux (rs : list (expr × bool)) (s : side) : option app
 -- TODO handle other how.* values here, e.g. how.simp
 -- At the moment we just silently drop these.
   (new_tree, rest_if_fail) ← match h with
-  | how.rewrite index loc addr := do
+  | how.rewrite index loc (some addr) := do
     new_tree ← splice_in tree [index] addr,
     return (some new_tree, list.cons h rest)
   | _ := do

@@ -6,11 +6,11 @@ import .data
 universe u
 
 meta inductive how
-| rewrite (rule_index : ℕ) (location : ℕ) (addr : list side)
+| rewrite (rule_index : ℕ) (location : ℕ) (addr : option (list side))
 | defeq
 | simp  -- TODO handle "explaining" me
 meta def how.to_string : how → format
-| (how.rewrite idx loc addr) := format!"rewrite {idx} {loc} {addr.to_string}"
+| (how.rewrite idx loc addr) := format!"rewrite {idx} {loc} {addr.iget.to_string}"
 | how.defeq := "(defeq)"
 | how.simp := "simp"
 meta instance how.has_to_format : has_to_format how := ⟨how.to_string⟩
