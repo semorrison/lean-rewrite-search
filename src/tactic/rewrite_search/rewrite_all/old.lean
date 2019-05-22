@@ -5,7 +5,7 @@
 import data.mllist
 import lib.pretty_print
 import lib.tactic
-import .common
+import tactic.rewrite_all.common
 
 namespace tactic
 
