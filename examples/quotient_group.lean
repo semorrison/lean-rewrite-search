@@ -1,9 +1,8 @@
-import group_theory.coset data.equiv data.quot
-import tactic.rewrite_search.tidy
+import group_theory.coset data.quot
+import tactic.rewrite_search
 
 open set function
-
-section quotient_group
+open quotient_group
 
 variable {α : Type*}
 
@@ -46,4 +45,3 @@ by refine
   inv := λ a',  quotient.lift_on  a'  (λ a, ⟦a⁻¹⟧)     (by obviously),
   .. }; obviously
 
-end quotient_group

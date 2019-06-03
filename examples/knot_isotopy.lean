@@ -1,4 +1,4 @@
-import tactic.rewrite_search.tidy
+import tactic.rewrite_search
 
 inductive slice
 | pos : ℕ → slice

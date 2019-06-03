@@ -1,4 +1,4 @@
-import tactic.rewrite_search.tidy
+import tactic.rewrite_search
 
 abbreviation C := ℕ
 variables X_1 X_2 X_3 X_4 X_5 X_6 X_7 X_8 X_9 X_10 X_11 X_12 X_13 X_14 X_15 X_16 X_17 X_18 X_19 X_20 X_21 X_22 X_23 X_24 X_25 X_26 X_27 X_28 X_29 X_30 X_31 X_32 X_33 X_34 X_35 X_36 X_37 X_38 X_39 X_40 X_41 X_42 X_43 X_44 X_45 X_46 X_47 X_48 : C
