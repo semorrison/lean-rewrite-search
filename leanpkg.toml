@@ -7,4 +7,4 @@ path = "src"
 [dependencies]
 mathlib = {git = "https://github.com/leanprover/mathlib", rev = "38b80546748f0f2a0d5644d539a863ef16c8911d"}
 libk = {git = "https://github.com/khoek/libk", branch = "master", rev = "461caf0b2915dd612a5e9f4ad7f6b627506d4ec0"}
-libiconfig = {git = "https://github.com/khoek/libiconfig", branch = "master", rev = "c3d584f2e88cc75f1c6c0f9786a58bf78a01ac2f"}
+libiconfig = {git = "https://github.com/semorrison/libiconfig", branch = "master", rev = "e0448efefc194d20c2bfa67545b1ec3d7b467a99"}
