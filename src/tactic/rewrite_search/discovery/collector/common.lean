@@ -1,4 +1,4 @@
-import tactic.rewrite_search.rewrite_all.wrappers
+import tactic.rewrite_all
 
 import ..screening
 

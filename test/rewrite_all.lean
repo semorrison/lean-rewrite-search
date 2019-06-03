@@ -1,7 +1,7 @@
 -- Copyright (c) 2018 Keeley Hoek. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Keeley Hoek, Scott Morrison
-import tactic.rewrite_search.rewrite_all.wrappers
+import tactic.rewrite_all
 import data.vector
 
 structure F :=
@@ -35,13 +35,11 @@ begin
   perform_nth_rewrite 0 [C.ri],
 end
 
--- The next two examples fail when using the kabstract backend.
-
 axiom foo : [1] = [2]
 
 example : [[1], [1], [1]] = [[1], [2], [1]] :=
 begin
-  nth_rewrite_lhs 1 [foo],
+  nth_rewrite_lhs 1 foo,
 end
 
 axiom foo' : [6] = [7]
@@ -51,7 +49,15 @@ example : [[7],[6]] = [[5],[5]] :=
 begin
   nth_rewrite_lhs 0 foo',
   nth_rewrite_rhs 0 bar',
-  nth_rewrite_lhs 0 ← foo',
-  nth_rewrite_lhs 0 ← foo'
-  -- FIXME this isn't really the behaviour I want: I'd like to be able to rewrite these two separately.
+  nth_rewrite_lhs 0 ←foo',
+  nth_rewrite_lhs 0 ←foo'
+end
+
+
+axioms (a b : ℕ)
+
+
+example (a b c : ℕ) : a + b + c = a + c + b :=
+begin
+  nth_rewrite_rhs 0 add_comm,
 end

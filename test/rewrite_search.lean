@@ -5,6 +5,9 @@ import tactic.rewrite_search
 
 namespace tactic.rewrite_search.testing
 
+axiom foo' : [6] = [7]
+axiom bar' : [[5],[5]] = [[6],[6]]
+
 example : [[7],[6]] = [[5],[5]] :=
 begin
  success_if_fail { rewrite_search_with [] {} },
@@ -147,9 +150,6 @@ constants f g : ℕ → ℕ → ℕ → ℕ
 @[search] axiom f_g : f 0 1 2 = g 2 0 1
 
 set_option trace.app_builder true
-
--- FIXME crashes when using the kabstract back end
-run_cmd do (tactic.rewrite_all_lazy (`(g_0_0), tt) `(g 0 0 0)).force
 
 lemma test : f 0 0 0 = g 0 0 0 :=
 -- by erw [f_2_2, f_1_1, g_0_2, g_2_1, ←f_g]
