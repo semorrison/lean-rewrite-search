@@ -1,8 +1,6 @@
 import data.option.defs
 import data.buffer
 
-import .interaction_monad
-
 universes u v w
 
 namespace list
