@@ -1,5 +1,5 @@
 import data.nat.basic
-import data.pnat
+import data.pnat.basic
 
 lemma nat.succ_pred (n : ℕ) (h : n ≠ 0) : nat.succ (nat.pred n) = n :=
 begin

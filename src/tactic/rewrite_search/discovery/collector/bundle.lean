@@ -1,4 +1,4 @@
-import data.rat
+import data.rat.basic
 import data.list
 
 import lib.list

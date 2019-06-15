@@ -1,5 +1,5 @@
 import lib.table
-import data.rat
+import data.rat.basic
 
 import tactic.rewrite_search.discovery.common
 

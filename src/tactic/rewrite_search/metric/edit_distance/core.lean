@@ -1,7 +1,7 @@
 import tactic.rewrite_search.core
 import tactic.rewrite_search.module
 
-import data.rat
+import data.rat.basic
 
 open tactic.rewrite_search
 open tactic.rewrite_search.bound_progress
