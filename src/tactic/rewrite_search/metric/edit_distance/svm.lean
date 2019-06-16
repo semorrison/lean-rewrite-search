@@ -22,7 +22,7 @@ meta def fill_token_vector_aux {dim : ℕ} : list table_ref → ℕ → array di
 | [] idx vec := vec
 | (t :: rest) idx vec :=
   dite (dim = 0) (λ _, vec) (λ hnz,
-    let f : fin dim := fin.with_max t dim hnz in
+    let f : fin dim := fin.with_max t dim (zero_lt_iff_ne_zero.mpr hnz) in
     fill_token_vector_aux rest (idx + 1) $ vec.write f $ (vec.read f) + 1
   )
 

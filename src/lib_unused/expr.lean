@@ -1,7 +1,7 @@
 import data.list
 import tactic.where
 
-import .string
+import lib.string
 
 meta structure binder :=
 (name : name)

@@ -38,7 +38,7 @@ def list_map_copy_from {α : Type u} {β : Type v} {n : ℕ} (x : array n β) (f
 def list_map_copy {α : Type u} {β : Type v} {n : ℕ} (x : array n β) (fn : α → β) (l : list α) : array n β :=
   list_map_copy_from x fn l 0
 
-def list_copy {α : Type u} {n : ℕ} (x : array n α) (l : list α) : array n α :=
-  list_map_copy x (λ a, a) l
+-- def list_copy {α : Type u} {n : ℕ} (x : array n α) (l : list α) : array n α :=
+--   list_map_copy x (λ a, a) l
 
 end array
