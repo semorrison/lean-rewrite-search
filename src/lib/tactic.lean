@@ -2,13 +2,34 @@ import tactic.basic
 
 universe u
 
-namespace tactic
+namespace expr
+open tactic
+
+meta def simp
+  (t : expr) (cfg : simp_config := {}) (discharger : tactic unit := failed)
+  (no_defaults := ff) (attr_names : list name := []) (hs : list simp_arg_type := []) :
+  tactic (expr × expr) :=
+do
+  (s, to_unfold) ← mk_simp_set no_defaults attr_names hs,
+  simplify s to_unfold t cfg `eq discharger
+
+meta def dsimp
+  (t : expr) (cfg : dsimp_config := {})
+  (no_defaults := ff) (attr_names : list name := []) (hs : list simp_arg_type := []) :
+  tactic expr :=
+do
+  (s, to_unfold) ← mk_simp_set no_defaults attr_names hs,
+  s.dsimplify to_unfold t cfg
 
 meta def is_eq_or_iff_after_binders : expr → bool
-  | (expr.pi n bi d b) := is_eq_or_iff_after_binders b
-  | `(%%a = %%b)       := tt
-  | `(%%a ↔ %%b)       := tt
-  | _                  := ff
+| (expr.pi n bi d b) := is_eq_or_iff_after_binders b
+| `(%%a = %%b)       := tt
+| `(%%a ↔ %%b)       := tt
+| _                  := ff
+
+end expr
+
+namespace tactic
 
 meta def type_cast (α : Type u) [reflected α] (n : name) : tactic α :=
   eval_expr α (expr.const n [])
@@ -23,22 +44,6 @@ do
   refl ← mk_const `eq.refl,
   apply_core refl {new_goals := new_goals.non_dep_only},
   instantiate_mvars m
-
-meta def simp_expr
-  (t : expr) (cfg : simp_config := {}) (discharger : tactic unit := failed)
-  (no_defaults := ff) (attr_names : list name := []) (hs : list simp_arg_type := []) :
-  tactic (expr × expr) :=
-do
-  (s, to_unfold) ← mk_simp_set no_defaults attr_names hs,
-  simplify s to_unfold t cfg `eq discharger
-
-meta def dsimp_expr
-  (t : expr) (cfg : dsimp_config := {}) (discharger : tactic unit := failed)
-  (no_defaults := ff) (attr_names : list name := []) (hs : list simp_arg_type := []) :
-  tactic expr :=
-do
-  (s, to_unfold) ← mk_simp_set no_defaults attr_names hs,
-  s.dsimplify to_unfold t cfg
 
 meta def mk_app_aux : expr → expr → expr → tactic expr
  | f (expr.pi n binder_info.default d b) arg := do

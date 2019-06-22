@@ -21,7 +21,7 @@ do u ← mllist.uncons prog,
    end
 
 meta def simp_rewrite (exp : expr) : tactic rewrite := do
-  (simp_exp, simp_prf) ← tactic.simp_expr exp,
+  (simp_exp, simp_prf) ← exp.simp,
   return ⟨simp_exp, pure simp_prf, how.simp⟩
 
 -- FIXME I don't know how to extract a proof of equality from `simp_lemmas.dsimplify`

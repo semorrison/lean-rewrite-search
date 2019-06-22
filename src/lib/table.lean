@@ -73,7 +73,7 @@ end
 
 @[inline] def present (r : table_ref) : bool := (t.at_ref r).is_some
 
-@[inline] meta def get (r : table_ref) : tactic α := t.at_ref r
+@[inline] meta def get (r : table_ref) : option α := t.at_ref r
 
 @[inline] def iget [inhabited α] (r : table_ref) : α :=
   match t.at_ref r with

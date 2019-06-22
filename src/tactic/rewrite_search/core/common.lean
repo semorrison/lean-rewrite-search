@@ -52,7 +52,7 @@ meta def rhs (e : expr) : tactic expr := prod.snd <$> split e
 end rw_equation
 
 meta def is_acceptable_rewrite (t : expr) : bool :=
-  is_eq_or_iff_after_binders t
+t.is_eq_or_iff_after_binders
 
 meta def is_acceptable_lemma (r : expr) : tactic bool :=
   is_acceptable_rewrite <$> (infer_type r >>= whnf)
