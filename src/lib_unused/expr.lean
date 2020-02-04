@@ -3,32 +3,27 @@ import tactic.where
 
 import lib.string
 
-meta structure binder :=
-(name : name)
-(type : expr)
-(binder_info : binder_info)
-
 namespace binder
 
 meta def set_name : binder → _root_.name → binder
-| ⟨_, e, bi⟩ n := ⟨n, e, bi⟩
+| ⟨_, bi, e⟩ n := ⟨n, bi, e⟩
 
 meta def set_type : binder → expr → binder
-| ⟨n, _, bi⟩ e := ⟨n, e, bi⟩
+| ⟨n, bi, _⟩ e := ⟨n, bi, e⟩
 
 meta def set_binder_info : binder → _root_.binder_info → binder
-| ⟨n, e, _⟩ bi := ⟨n, e, bi⟩
+| ⟨n, _, e⟩ bi := ⟨n, bi, e⟩
 
 meta def pretty_print : binder → tactic string
-| ⟨n, e, bi⟩ := let brackets := where.binder_brackets bi in do
+| ⟨n, bi, e⟩ := let brackets := bi.brackets in do
   ppe ← to_string <$> tactic.pp e,
   return $ brackets.1 ++ n.to_string ++ " : " ++ ppe ++ brackets.2
 
 private meta def instantiate_list_aux : list binder → list binder → list binder
 | seen [] := seen
-| seen (⟨n, e, bi⟩ :: rest) :=
+| seen (⟨n, bi, e⟩ :: rest) :=
   let e := e.instantiate_vars $ seen.reverse.map $ λ v, expr.const v.1 [] in
-  instantiate_list_aux (seen.concat ⟨n, e, bi⟩) rest
+  instantiate_list_aux (seen.concat ⟨n, bi, e⟩) rest
 
 meta def instantiate_list : list binder → list binder :=
   instantiate_list_aux []
@@ -37,7 +32,7 @@ meta def instantiate (e : expr) (l : list binder) : expr :=
   e.instantiate_vars $ l.reverse.map $ λ v : binder, expr.const v.1 []
 
 meta def drop_implicit : binder → option binder
-| ⟨n, e, binder_info.default⟩ := some ⟨n, e, binder_info.default⟩
+| ⟨n, binder_info.default, e⟩ := some ⟨n, binder_info.default, e⟩
 | _ := none
 
 meta def list_to_args (l : list binder) (drop_impl : bool := tt) : tactic string := do
@@ -46,7 +41,7 @@ meta def list_to_args (l : list binder) (drop_impl : bool := tt) : tactic string
 
 meta def list_to_invocation (l : list binder) (drop_impl : bool := tt) : string :=
   let l := if drop_impl then l.filter_map drop_implicit else l in
-  string.intercalate " " $ (instantiate_list l).map $ to_string ∘ name
+  string.intercalate " " $ (instantiate_list l).map $ to_string ∘ binder.name
 
 end binder
 
@@ -54,7 +49,7 @@ namespace expr
 
 private meta def unroll_pi_binders_aux : list binder → expr → list binder × expr
 | curr (expr.pi var_n bi var_type rest) :=
-  unroll_pi_binders_aux (curr.concat ⟨var_n, var_type, bi⟩) rest
+  unroll_pi_binders_aux (curr.concat ⟨var_n, bi, var_type⟩) rest
 | curr ex := (curr, ex)
 
 meta def unroll_pi_binders : expr → list binder × expr :=
@@ -62,7 +57,7 @@ meta def unroll_pi_binders : expr → list binder × expr :=
 
 private meta def unroll_lam_binders_aux : list binder → expr → list binder × expr
 | curr (expr.lam var_n bi var_type rest) :=
-  unroll_lam_binders_aux (curr.concat ⟨var_n, var_type, bi⟩) rest
+  unroll_lam_binders_aux (curr.concat ⟨var_n, bi, var_type⟩) rest
 | curr ex := (curr, ex)
 
 meta def unroll_lam_binders : expr → list binder × expr :=
