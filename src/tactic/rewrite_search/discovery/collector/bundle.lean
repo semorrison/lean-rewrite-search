@@ -1,7 +1,6 @@
 import data.rat.basic
-import data.list
+import data.list.defs
 
-import lib.list
 import tactic.rewrite_search.core.common
 
 import ..types

@@ -1,7 +1,6 @@
 import tactic.iconfig
 import tactic.rewrite_search.core
 import tactic.rewrite_search.module
-import lib.utf8
 
 import system.io
 

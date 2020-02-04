@@ -47,7 +47,7 @@ end
 
 private example (a : unit) : [[0],[0]] = [[4],[4]] :=
 begin
-  rewrite_search_with [foo, bar1, ← bar2, bar2, ← bar3] {strategy.pexplore {}, metric.edit_distance {}, no visualiser},
+  rewrite_search_with [foo, bar1, ← bar2, bar2, ← bar3] {strategy.pexplore {}, metric.edit_distance {}, visualiser},
 end
 
 private example : [[0],[0]] = [[4],[4]] :=

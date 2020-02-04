@@ -1,4 +1,3 @@
-import lib.list
 import lib.tactic
 
 import tactic.rewrite_search.core.common
