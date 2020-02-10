@@ -259,7 +259,7 @@ namespace v1
 -- rewrite_search_with (saw/visited/used) 114/112/13 expressions during proof of tactic.rewrite_search.examples.tactic.rewrite_search.tesseract.v1.test
 lemma test : f_1 0 0 0 = f_5 0 0 0 :=
 -- by erw [f_2_2, f_1_1, g_0_2, g_2_1, ←f_g]
-by rewrite_search {trace := ff, explain := tt, trace_summary := tt, exhaustive := ff, no visualiser, strategy.pexplore {pop_size := 1, pop_alternate := ff}, metric.edit_distance {}, max_iterations := 1000}
+by rewrite_search {trace := ff, explain := tt, trace_summary := tt, exhaustive := ff, visualiser, strategy.pexplore {pop_size := 1, pop_alternate := ff}, metric.edit_distance {}, max_iterations := 1000}
 end v1
 
 namespace v2
@@ -271,7 +271,7 @@ namespace v2
 
 -- lemma test : f_1 0 0 0 = f_5 0 0 0 :=
 -- -- by erw [f_2_2, f_1_1, g_0_2, g_2_1, ←f_g]
--- by rewrite_search {trace := ff, explain := tt, trace_summary := tt, exhaustive := ff, no visualiser, strategy.pexplore { pop_size := 100 }, metric.edit_distance {refresh_freq := 5} cm}
+-- by rewrite_search {trace := ff, explain := tt, trace_summary := tt, exhaustive := ff, visualiser, strategy.pexplore { pop_size := 100 }, metric.edit_distance {refresh_freq := 5} cm}
 end v2
 
 end tactic.rewrite_search.tesseract
